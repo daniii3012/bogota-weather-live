@@ -11,11 +11,14 @@
   <https://datosabiertos.bogota.gov.co/dataset/edit-sab-sistema-de-alerta-de-bogota>
 - **IDIGER — SAB, temperatura, humedad, viento y niveles** — red hidrometeorológica de Bogotá.
   <https://www.sab.gov.co>
+- **IDIGER — alertas** — modelo de deslizamientos por lluvia y días sin lluvia (zonas propensas a
+  incendios de la cobertura vegetal). <https://www.sab.gov.co>
 - **NOAA — GOES-19** — imágenes del satélite geoestacionario GOES-Este (NOAA/NESDIS/STAR). Dominio
   público. <https://www.star.nesdis.noaa.gov/goes/sector.php?sat=G19&sector=nsa>
 - **NASA GIBS** — las imágenes de GOES-19 como teselas de mapa. Servicio de NASA ESDIS.
   <https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api>
-- **Open-Meteo** — pronóstico por hora y por día. CC BY 4.0. <https://open-meteo.com>
+- **Open-Meteo** — pronóstico por hora y por día (modelo numérico, no es el pronóstico oficial).
+  CC BY 4.0. <https://open-meteo.com>
 
 Los datos del IDIGER se muestran transformados (unidos por estación, filtrados por calidad y
 agregados por localidad). Licencia: <https://creativecommons.org/licenses/by-nc/4.0/deed.es>
@@ -34,4 +37,12 @@ agregados por localidad). Licencia: <https://creativecommons.org/licenses/by-nc/
 - **OpenMapTiles** — esquema de las teselas vectoriales. <https://openmaptiles.org>
 - **OpenFreeMap** — teselas y tipografías del mapa base, sin clave. <https://openfreemap.org>
 - **MapLibre GL JS** — motor del mapa. <https://maplibre.org>
+- **Geist y Geist Mono** — tipografías de la interfaz (Vercel, OFL). <https://vercel.com/font>
 - **Svelte, Vite, Workbox** — interfaz, compilación y service worker.
+
+## Referencias de diseño
+
+- **TransMi Live** — proyecto del mismo autor: lenguaje de la interfaz (grafito, retícula de 4 px,
+  esquinas rectas, panel lateral y hoja inferior). <https://github.com/daniii3012/transmi-live>
+- **Sistema de Alerta de Bogotá** — tramos de lluvia acumulada y regla de estado de los niveles de
+  ríos, tomados de sus mapas oficiales.
