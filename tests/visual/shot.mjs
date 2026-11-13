@@ -1,5 +1,6 @@
 // Capturas de referencia con el Chrome instalado (puppeteer-core, sin descargar navegadores).
 // Uso: node tests/visual/shot.mjs <url> <nombre> [desktop|mobile|both] [--wait=ms] [--eval=js] [--geo=lon,lat]
+//      [--vista=ANCHOxALTO] (otro tamaño de escritorio) [--clip=x,y,ancho,alto] (solo ese recorte)
 import puppeteer from 'puppeteer-core';
 import { mkdirSync } from 'node:fs';
 
@@ -24,7 +25,8 @@ try {
     const logs = [];
     page.on('console', (m) => logs.push(`[${m.type()}] ${m.text()}`));
     page.on('pageerror', (e) => logs.push(`[pageerror] ${e.message}`));
-    await page.setViewport(VIEWPORTS[kind]);
+    const vista = kind === 'desktop' && opt.vista ? { ...VIEWPORTS.desktop, width: Number(String(opt.vista).split('x')[0]), height: Number(String(opt.vista).split('x')[1]) } : VIEWPORTS[kind];
+    await page.setViewport(vista);
     if (opt.geo) {
       const [lon, lat] = String(opt.geo).split(',').map(Number);
       await browser.defaultBrowserContext().overridePermissions(new URL(url).origin, ['geolocation']);
@@ -36,7 +38,8 @@ try {
     if (opt.eval) { await page.evaluate(opt.eval); }
     await new Promise((r) => setTimeout(r, Number(opt.wait ?? 1500)));
     const file = `${OUT}${name}-${kind}.png`;
-    await page.screenshot({ path: file });
+    const [cx, cy, cw, ch] = opt.clip ? String(opt.clip).split(',').map(Number) : [];
+    await page.screenshot({ path: file, ...(opt.clip ? { clip: { x: cx, y: cy, width: cw, height: ch } } : {}) });
     const fps = await page.evaluate(() => window.__fps?.() ?? null).catch(() => null);
     console.log(file, fps ? `fps=${fps}` : '');
     for (const l of logs.filter((l) => !/Download the|DevTools/.test(l))) console.log('  ', l.slice(0, 300));

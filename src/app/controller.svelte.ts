@@ -11,14 +11,16 @@ import { BOUNDS, HOME, REGION, SABANA, ZOOM_MIN, ZOOM_MIN_SAT } from '../map/Map
 import { cercano, enBogota } from '../domain/geo';
 import { resumen } from '../domain/stats';
 import { valor } from '../domain/variables';
-import { app, avisar, guardarDatos, guardarPrefs, type Capas as CapasEstado } from './store.svelte';
-import { go, parse } from './router';
+import { HOJA_ASOMADA, app, avisar, guardarDatos, guardarPrefs, type Capas as CapasEstado } from './store.svelte';
+import { anotar, go, parse } from './router';
 import { applyTheme, effective, onSystemChange, saveThemePref, type ThemePref } from './theme';
 
 const CADA = { ahora: 60, radar: 60, niveles: 180, alertas: 1800 };
 /** Con datos de más de cinco minutos, la página avisa que no está al día. */
 const VIEJO_S = 5 * 60;
 const LADO_RADAR = 1024;
+/** Alto de lo que flota sobre la hoja en el teléfono (línea de tiempo y leyenda). */
+const DOCK = 104;
 
 export class Controller {
   /** Sin mapa (un navegador sin WebGL) los datos y el panel siguen funcionando. */
@@ -45,7 +47,7 @@ export class Controller {
       map.on('mousemove', (e) => { map.getCanvas().style.cursor = this.bajo(e) ? 'pointer' : ''; });
     }
 
-    const alCambiarHash = () => (app.view = parse());
+    const alCambiarHash = () => { const v = parse(); app.atras = anotar(v); app.view = v; };
     const alVolver = () => { if (!document.hidden) this.refrescar(); };
     const alMedir = () => (app.narrow = innerWidth < 760);
     addEventListener('hashchange', alCambiarHash);
@@ -108,10 +110,10 @@ export class Controller {
       map.setMaxBounds(sat ? null : BOUNDS);
       map.setMinZoom(sat ? ZOOM_MIN_SAT : ZOOM_MIN);
     });
-    // Márgenes del mapa: lo que tapan el panel (escritorio) o la barra y la hoja (teléfono).
+    // Márgenes del mapa: lo que tapan el panel (escritorio) o la barra y la hoja asomada (teléfono). Son
+    // fijos: si siguieran a la hoja, el mapa entero saltaría cada vez que se abre una vista.
     $effect(() => {
-      const pad = app.narrow ? { top: app.topbarH + 8, bottom: Math.min(app.sheetHeight, innerHeight * 0.5) + 104, left: 0, right: 0 } : { top: 0, bottom: 0, left: 404, right: 0 };
-      map.setPadding(pad);
+      map.setPadding(app.narrow ? { top: app.topbarH + 8, bottom: HOJA_ASOMADA + DOCK, left: 0, right: 0 } : { top: 0, bottom: 0, left: 404, right: 0 });
     });
   }
 
@@ -297,14 +299,17 @@ export class Controller {
     const map = this.map, v = app.view;
     if (!map || !this.capas) return;
     const caja = this.capas.localidadActiva(v.kind === 'localidad' ? v.id : null);
+    // En el teléfono una ficha abre la hoja a media altura: el punto se lleva al centro de lo que
+    // queda a la vista, sin tocar los márgenes del mapa.
+    const sube = app.narrow ? Math.max(0, Math.round(innerHeight * 0.5) - HOJA_ASOMADA) : 0;
     if (v.kind === 'estacion') {
       const e = app.datos?.estaciones.find((x) => x.id === Number(v.id));
-      if (e) map.easeTo({ center: [e.lon, e.lat], zoom: Math.max(map.getZoom(), 12.2), duration: 700 });
+      if (e) map.easeTo({ center: [e.lon, e.lat], zoom: Math.max(map.getZoom(), 12.2), duration: 700, offset: [0, -sube / 2] });
     } else if (v.kind === 'rio') {
       const r = app.niveles?.rios.find((x) => x.id === Number(v.id));
-      if (r) map.easeTo({ center: [r.lon, r.lat], zoom: Math.max(map.getZoom(), 12.2), duration: 700 });
+      if (r) map.easeTo({ center: [r.lon, r.lat], zoom: Math.max(map.getZoom(), 12.2), duration: 700, offset: [0, -sube / 2] });
     } else if (caja) {
-      map.fitBounds(caja, { padding: 40, maxZoom: 13, duration: 700 });
+      map.fitBounds(caja, { padding: { top: 40, left: 40, right: 40, bottom: 40 + sube }, maxZoom: 13, duration: 700 });
     }
   }
 }

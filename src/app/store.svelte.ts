@@ -1,7 +1,7 @@
 /** Estado de la aplicación. Un solo objeto reactivo que leen las vistas y escribe el controlador. */
 import type { Ahora, Alertas, Niveles, Radar, Variable } from '../live/contract';
 import type { Producto, Pronostico } from '../live/external';
-import { parse, type View } from './router';
+import { anotar, parse, type View } from './router';
 import { effective, type Theme } from './theme';
 
 export type Estado = 'conectando' | 'vivo' | 'viejo' | 'error' | 'pausa';
@@ -45,10 +45,18 @@ function leerDatos(): Ahora | null {
   try { return JSON.parse(localStorage.getItem(KEY_DATOS) ?? 'null') as Ahora | null; } catch { return null; }
 }
 
+/** Alto de la hoja inferior asomada (teléfono): la manija y las cuatro fichas. */
+export const HOJA_ASOMADA = 198;
+
+const inicial = (typeof location !== 'undefined' ? parse() : { kind: 'home' }) as View;
+anotar(inicial);
+
 const prefs = typeof localStorage !== 'undefined' ? leerPrefs() : structuredClone(POR_DEFECTO);
 
 export const app = $state({
-  view: (typeof location !== 'undefined' ? parse() : { kind: 'home' }) as View,
+  view: inicial,
+  /** ¿Se llegó a la vista actual retrocediendo? Entonces se muestra como se dejó. */
+  atras: false,
   tema: (typeof document !== 'undefined' ? effective() : 'dark') as Theme,
   /** Segundos Unix; avanza cada 15 s para que las edades se actualicen solas. */
   now: Date.now() / 1000,

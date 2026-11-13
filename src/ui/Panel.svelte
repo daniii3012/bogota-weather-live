@@ -1,19 +1,15 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { onMount } from 'svelte';
-  import { app } from '../app/store.svelte';
-  import { go } from '../app/router';
+  import { onMount, untrack } from 'svelte';
+  import { HOJA_ASOMADA, app } from '../app/store.svelte';
+  import { go, key } from '../app/router';
   import Brand from './Brand.svelte';
   import StatusLine from './StatusLine.svelte';
 
   let { children }: { children: Snippet } = $props();
 
-  // Cada vista nueva empieza arriba.
   let scrollers = $state<HTMLElement[]>([]);
-  $effect(() => {
-    void app.view.kind; void (app.view as { id?: string }).id;
-    for (const el of scrollers) if (el) el.scrollTop = 0;
-  });
+  const contenido = () => scrollers[app.narrow ? 0 : 1];
 
   // ── Hoja inferior (móvil) ──────────────────────────────────────────────────────────────────
   // Tres alturas: asomada (lo esencial de la vista), media y completa. Arrastre con inercia, desde la
@@ -23,7 +19,7 @@
   let dragY = $state<number | null>(null);
   let vh = $state(typeof window !== 'undefined' ? window.innerHeight : 800);
   // Asomada: la manija y las cuatro fichas del clima de la ciudad.
-  const PEEK = 198;
+  const PEEK = HOJA_ASOMADA;
   // Margen de la barra de inicio del iPhone (`--safe-bottom`): en Safari vale 0 (abajo está la barra del
   // navegador) y en la app instalada ~34 px. La hoja asomada lo suma a su altura; antes salía del
   // contenido y el buscador quedaba recortado en la app instalada.
@@ -35,10 +31,29 @@
 
   $effect(() => { app.topbarH = app.narrow ? topbarH : 0; });
   $effect(() => { app.sheetHeight = app.narrow ? heights[snap] : 0; });
-  // Al cambiar de vista, la hoja muestra al menos la media altura (la ficha se lee entera).
+  // Cada vista se recuerda como quedó: hasta dónde se había bajado y a qué altura estaba la hoja. Al
+  // inicio se vuelve siempre así, y a las demás cuando se retrocede; una vista nueva empieza arriba y,
+  // en el teléfono, con la hoja al menos a media altura (la ficha se lee entera).
+  const recuerdo = new Map<string, { top: number; snap: Snap }>();
+  let anterior = key(app.view);
+  $effect.pre(() => {
+    const k = key(app.view);
+    if (k === anterior) return;
+    // Antes de que cambie el contenido: se guarda la vista que se va.
+    untrack(() => recuerdo.set(anterior, { top: contenido()?.scrollTop ?? 0, snap }));
+    anterior = k;
+  });
+  let mostrada = key(app.view);
   $effect(() => {
-    const k = app.view.kind;
-    if (app.narrow) snap = k === 'home' ? 'peek' : 'half';
+    const k = key(app.view), inicio = app.view.kind === 'home';
+    if (k === mostrada) return;
+    mostrada = k;
+    untrack(() => {
+      const r = inicio || app.atras ? recuerdo.get(k) : undefined;
+      const el = contenido();
+      if (el) el.scrollTop = r?.top ?? 0;
+      if (app.narrow) snap = r?.snap ?? (inicio ? 'peek' : snap === 'full' ? 'full' : 'half');
+    });
   });
 
   let start = { y: 0, h: 0, t: 0 };

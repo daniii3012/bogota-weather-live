@@ -79,11 +79,13 @@
 <h1 class="sr">Bogotá Weather Live: el clima de Bogotá en tiempo real (no oficial)</h1>
 
 <Panel>
+  <!-- El inicio nunca se desmonta: al volver está como se dejó (lista, pestaña, desplazamiento). Las
+       demás vistas se montan encima y lo ocultan. -->
+  <div class="vista" hidden={app.view.kind !== 'home'}><HomeView /></div>
+  {#if app.view.kind !== 'home'}
   {#key key(app.view)}
     <div class="vista" in:fly={{ y: quieto ? 0 : 8, duration: quieto ? 1 : 200, easing: cubicOut }}>
-      {#if app.view.kind === 'home'}
-        <HomeView />
-      {:else if app.view.kind === 'estacion'}
+      {#if app.view.kind === 'estacion'}
         <StationView id={Number(app.view.id)} />
       {:else if app.view.kind === 'localidad'}
         <LocalityView nombre={app.view.id} />
@@ -104,6 +106,7 @@
       {/if}
     </div>
   {/key}
+  {/if}
 </Panel>
 
 {#if listo}

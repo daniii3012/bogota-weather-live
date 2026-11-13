@@ -40,6 +40,16 @@ export function go(v: View, replace = false) {
 /** Llave de una vista: cambia cuando hay que redibujar el panel. */
 export const key = (v: View): string => ('id' in v ? `${v.kind}:${v.id}` : v.kind);
 
+// Vistas recorridas, para saber si a una se llega retrocediendo (y devolverla como se dejó).
+const pila: string[] = [];
+/** Anota la vista a la que se llegó y dice si es la anterior de la pila (se volvió atrás). */
+export function anotar(v: View): boolean {
+  const k = key(v);
+  if (pila.length >= 2 && pila[pila.length - 2] === k) { pila.pop(); return true; }
+  if (pila[pila.length - 1] !== k) pila.push(k);
+  return false;
+}
+
 // Pasos dados dentro de la página: con al menos uno, «volver» es el botón atrás del navegador; si se
 // llegó por un enlace directo, lleva al inicio.
 let pasos = 0;

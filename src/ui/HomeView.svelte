@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { app } from '../app/store.svelte';
   import { ctl, traerPronostico } from '../app/controller.svelte';
   import { frase, orden, porLocalidad, resumen } from '../domain/stats';
@@ -64,7 +63,9 @@
   const rios = $derived(ORDEN_RIO.map((e) => ({ e, n: app.niveles?.rios.filter((x) => x.estado === e).length ?? 0 })).filter((x) => x.n));
   const desliz = $derived([4, 3, 2].map((n) => ({ n, c: app.alertas?.deslizamientos.features.filter((f) => f.properties.nivel === n).length ?? 0 })).filter((x) => x.c));
 
-  onMount(() => { void traerPronostico(); });
+  // El inicio queda siempre montado: el pronóstico se revisa al abrir y cada diez minutos (la función
+  // no pide nada si el que tiene es de hace menos de media hora).
+  $effect(() => { void Math.floor(app.now / 600); void traerPronostico(); });
 </script>
 
 {#if app.datos}

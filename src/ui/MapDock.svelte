@@ -48,49 +48,6 @@
 </script>
 
 <div class="dock" class:narrow={app.narrow} style:--sheet="{app.sheetHeight}px">
-  {#if sat}
-    <div class="tiempo">
-      <div class="cab">
-        <span class="label">Satélite · {PRODUCTOS[sat].nombre}</span>
-        <span class="mono hora">{satT ? cuando(satT, app.now) : 'última imagen'}</span>
-        {#if satT}<span class="mono faint">{hace(app.now - satT)}</span>{/if}
-        <button class="texto" onclick={() => ctl()?.region()}>País</button>
-        <button class="texto" onclick={() => ctl()?.ciudad()}>Bogotá</button>
-      </div>
-      {#if app.satTiempos.length > 1}
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-        <div class="pista" role="slider" tabindex="0" aria-label="Hora de la imagen del satélite" aria-valuemin={0} aria-valuemax={app.satTiempos.length - 1} aria-valuenow={app.satIndice} aria-valuetext={satT ? cuando(satT, app.now) : ''}
-          onpointerdown={(e) => recorrer(e, app.satTiempos.length, (i) => (app.satIndice = i))} onpointermove={(e) => recorrer(e, app.satTiempos.length, (i) => (app.satIndice = i))} onkeydown={teclaSat}>
-          {#each app.satTiempos as t, i (t)}<span class:on={i === app.satIndice} class:listo={true}></span>{/each}
-        </div>
-      {/if}
-    </div>
-  {/if}
-
-  {#if cuadros.length}
-    <div class="tiempo">
-      <div class="cab">
-        <button class="play" onclick={() => ctl()?.animar(!app.animando)} aria-label={app.animando ? 'Pausar el radar' : 'Reproducir el radar'} aria-pressed={app.animando}>
-          {#if app.animando}
-            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1h2.4v8H1.5zM6.1 1h2.4v8H6.1z" fill="currentColor" /></svg>
-          {:else}
-            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z" fill="currentColor" /></svg>
-          {/if}
-        </button>
-        <span class="label" class:viejo={radarViejo}>{radarViejo ? 'Radar sin actualizar' : 'Radar'}</span>
-        {#if actual}
-          <span class="mono hora">{cuando(actual.t, app.now)}</span>
-          <span class="mono faint">{hace(app.now - actual.t)}</span>
-        {/if}
-      </div>
-      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <div class="pista" role="slider" tabindex="0" aria-label="Cuadro del radar" aria-valuemin={0} aria-valuemax={cuadros.length - 1} aria-valuenow={app.cuadro} aria-valuetext={actual ? cuando(actual.t, app.now) : ''}
-        onpointerdown={(e) => recorrer(e, cuadros.length, (i) => ctl()?.cuadro(i))} onpointermove={(e) => recorrer(e, cuadros.length, (i) => ctl()?.cuadro(i))} onkeydown={teclaRadar}>
-        {#each cuadros as c, i (c.t)}<span class:on={i === app.cuadro} class:listo={i >= cuadros.length - app.cuadrosListos}></span>{/each}
-      </div>
-    </div>
-  {/if}
-
   <div class="leyenda">
     <div class="esc">
       <span class="label titulo">{META[v].nombre} <span class="que">· {QUE[v]}</span>
@@ -125,11 +82,66 @@
       </div>
     {/if}
   </div>
+  {#if sat || cuadros.length}
+    <div class="tiempos">
+    {#if sat}
+      <div class="tiempo">
+        <div class="cab">
+          <span class="label">Satélite · {PRODUCTOS[sat].nombre}</span>
+          <span class="mono hora">{satT ? cuando(satT, app.now) : 'última imagen'}</span>
+          {#if satT}<span class="mono faint">{hace(app.now - satT)}</span>{/if}
+          <button class="texto" onclick={() => ctl()?.region()}>País</button>
+          <button class="texto" onclick={() => ctl()?.ciudad()}>Bogotá</button>
+        </div>
+        {#if app.satTiempos.length > 1}
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+          <div class="pista" role="slider" tabindex="0" aria-label="Hora de la imagen del satélite" aria-valuemin={0} aria-valuemax={app.satTiempos.length - 1} aria-valuenow={app.satIndice} aria-valuetext={satT ? cuando(satT, app.now) : ''}
+            onpointerdown={(e) => recorrer(e, app.satTiempos.length, (i) => (app.satIndice = i))} onpointermove={(e) => recorrer(e, app.satTiempos.length, (i) => (app.satIndice = i))} onkeydown={teclaSat}>
+            {#each app.satTiempos as t, i (t)}<span class:on={i === app.satIndice} class:listo={true}></span>{/each}
+          </div>
+        {/if}
+      </div>
+    {/if}
+
+    {#if cuadros.length}
+      <div class="tiempo">
+        <div class="cab">
+          <button class="play" onclick={() => ctl()?.animar(!app.animando)} aria-label={app.animando ? 'Pausar el radar' : 'Reproducir el radar'} aria-pressed={app.animando}>
+            {#if app.animando}
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1h2.4v8H1.5zM6.1 1h2.4v8H6.1z" fill="currentColor" /></svg>
+            {:else}
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z" fill="currentColor" /></svg>
+            {/if}
+          </button>
+          <span class="label" class:viejo={radarViejo}>{radarViejo ? 'Radar sin actualizar' : 'Radar'}</span>
+          {#if actual}
+            <span class="mono hora">{cuando(actual.t, app.now)}</span>
+            <span class="mono faint">{hace(app.now - actual.t)}</span>
+          {/if}
+        </div>
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <div class="pista" role="slider" tabindex="0" aria-label="Cuadro del radar" aria-valuemin={0} aria-valuemax={cuadros.length - 1} aria-valuenow={app.cuadro} aria-valuetext={actual ? cuando(actual.t, app.now) : ''}
+          onpointerdown={(e) => recorrer(e, cuadros.length, (i) => ctl()?.cuadro(i))} onpointermove={(e) => recorrer(e, cuadros.length, (i) => ctl()?.cuadro(i))} onkeydown={teclaRadar}>
+          {#each cuadros as c, i (c.t)}<span class:on={i === app.cuadro} class:listo={i >= cuadros.length - app.cuadrosListos}></span>{/each}
+        </div>
+      </div>
+    {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
-  .dock { position: absolute; left: calc(var(--panel-w) + var(--sp-6)); bottom: var(--sp-3); width: 348px; display: grid; gap: var(--sp-2); z-index: 5; }
-  .dock.narrow { left: var(--sp-3); right: calc(var(--sp-3) + 52px); width: auto; bottom: calc(var(--sheet) + var(--sp-3)); transition: bottom 260ms var(--ease-out); }
+  /* Escritorio: la leyenda y, a su derecha, la línea de tiempo, alineadas por abajo. Si no caben en
+   * una fila (ventana angosta), la línea de tiempo sube encima de la leyenda. El contenedor no
+   * recibe el puntero: el mapa se puede arrastrar por los huecos. */
+  .dock { position: absolute; left: calc(var(--panel-w) + var(--sp-6)); right: calc(var(--sp-4) + 44px); bottom: var(--sp-3); display: flex; flex-wrap: wrap-reverse; align-items: flex-start; gap: var(--sp-2); z-index: 5; pointer-events: none; }
+  .dock > * { pointer-events: auto; }
+  .leyenda { width: 348px; flex: none; }
+  .tiempos { width: 348px; flex: none; display: grid; gap: var(--sp-2); }
+  /* Teléfono: una columna sobre la hoja inferior, con la línea de tiempo arriba. */
+  .dock.narrow { left: var(--sp-3); right: calc(var(--sp-3) + 52px); bottom: calc(var(--sheet) + var(--sp-3)); display: grid; transition: bottom 260ms var(--ease-out); }
+  .narrow .leyenda, .narrow .tiempos { width: auto; }
+  .narrow .tiempos { order: -1; }
   .tiempo, .leyenda { background: var(--glass); border: 1px solid var(--line-2); box-shadow: var(--shadow); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   .tiempo { padding: 6px var(--sp-2) var(--sp-2); display: grid; gap: 6px; }
   .cab { display: flex; align-items: center; gap: var(--sp-2); min-height: 24px; }
