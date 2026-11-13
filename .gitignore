@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.wrangler/
+.DS_Store
+*.local.json
+.env.local
+.dev.vars
+tests/visual/out/
+coverage/
+.cache/
