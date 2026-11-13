@@ -97,7 +97,8 @@
         <text class="eje" x={M.izq - 6} y={py(m) + 3.5} text-anchor="end">{num(m, dy)}</text>
       {/each}
       {#each marcasX as t (t)}
-        <text class="eje" x={px(t)} y={alto - 5} text-anchor="middle">{hora(t)}</text>
+        <!-- Una marca pegada al borde derecho se alinea por su final: no se sale de la gráfica. -->
+        <text class="eje" x={px(t)} y={alto - 5} text-anchor={px(t) > ancho - 16 ? 'end' : 'middle'}>{hora(t)}</text>
       {/each}
       <line class="base" x1={M.izq} x2={ancho - M.der} y1={base} y2={base} />
       {#each refsVisibles as r (r.texto)}

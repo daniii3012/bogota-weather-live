@@ -10,8 +10,9 @@ setWorkerUrl(workerUrl);
 export const BOUNDS: LngLatBoundsLike = [[-75.3, 3.3], [-73.0, 5.6]];
 /** La ciudad urbana: el encuadre de inicio. */
 export const HOME = { center: [-74.11, 4.64] as [number, number], zoom: 10.6 };
-/** Vista regional para el satélite. */
-export const REGION = { center: [-73.8, 5.2] as [number, number], zoom: 5.6 };
+/** Vistas del satélite: la sabana y sus alrededores (la que abre) y el país. */
+export const SABANA = { center: [-74.1, 4.75] as [number, number], zoom: 7.3 };
+export const REGION = { center: [-73.6, 5.0] as [number, number], zoom: 5.5 };
 export const ZOOM_MIN = 8.4;
 export const ZOOM_MIN_SAT = 4.5;
 

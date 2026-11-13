@@ -7,7 +7,7 @@ import { api } from '../live/api';
 import { PRODUCTOS, pronostico, teselas, tiemposSatelite, type Producto } from '../live/external';
 import type { Estacion, Variable } from '../live/contract';
 import { Capas, TOCABLES } from '../map/capas';
-import { BOUNDS, HOME, REGION, ZOOM_MIN, ZOOM_MIN_SAT } from '../map/MapView';
+import { BOUNDS, HOME, REGION, SABANA, ZOOM_MIN, ZOOM_MIN_SAT } from '../map/MapView';
 import { cercano, enBogota } from '../domain/geo';
 import { resumen } from '../domain/stats';
 import { valor } from '../domain/variables';
@@ -185,7 +185,12 @@ export class Controller {
 
   private async satelite(p: Producto | null) {
     if (!p) { app.satTiempos = []; app.satIndice = 0; this.ciudad(); return; }
-    if (this.map && this.map.getZoom() > 7.5) this.map.easeTo({ ...REGION, duration: 900, padding: { left: 0, right: 0, top: 0, bottom: 0 } });
+    if (this.map && this.map.getZoom() > 8) {
+      // Los límites se sueltan aquí mismo: el efecto que los maneja corre después y frenaría el vuelo.
+      this.map.setMaxBounds(null);
+      this.map.setMinZoom(ZOOM_MIN_SAT);
+      this.map.easeTo({ center: SABANA.center, zoom: app.narrow ? SABANA.zoom - 0.7 : SABANA.zoom, duration: 900 });
+    }
     try {
       const ts = await tiemposSatelite(p, Date.now() / 1000);
       if (app.capas.satelite !== p) return;

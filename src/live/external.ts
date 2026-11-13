@@ -63,7 +63,8 @@ export const PRODUCTOS: Record<Producto, { nombre: string; capa: string; matriz:
 };
 
 const GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best';
-const iso = (t: number) => new Date(t * 1000).toISOString().replace('.000Z', 'Z');
+/** Segundos Unix → «2026-11-13T03:00:00Z» (sin milésimas: el servicio no las acepta). */
+const iso = (t: number) => new Date(Math.round(t) * 1000).toISOString().replace(/\.\d{3}Z$/, 'Z');
 
 /** Plantilla de teselas de un producto en un instante (segundos Unix, múltiplo de 10 minutos). */
 export function teselas(p: Producto, t: number | null): string {
@@ -74,7 +75,9 @@ export function teselas(p: Producto, t: number | null): string {
 /** Instantes disponibles de un producto en las últimas horas, del más antiguo al más reciente. */
 export async function tiemposSatelite(p: Producto, now: number, horas = 2): Promise<number[]> {
   const d = PRODUCTOS[p];
-  const q = new URLSearchParams({ SERVICE: 'WMTS', REQUEST: 'DescribeDomains', VERSION: '1.0.0', LAYER: d.capa, TILEMATRIXSET: d.matriz, TIME: `${iso(now - horas * 3600 - 3600)}/${iso(now + 600)}` });
+  // El intervalo va en múltiplos de diez minutos y sin codificar: así lo espera el servicio.
+  const desde = Math.floor((now - horas * 3600 - 3600) / 600) * 600, hasta = Math.ceil((now + 600) / 600) * 600;
+  const q = `SERVICE=WMTS&REQUEST=DescribeDomains&VERSION=1.0.0&LAYER=${d.capa}&TILEMATRIXSET=${d.matriz}&TIME=${iso(desde)}/${iso(hasta)}`;
   const res = await fetch(`${GIBS}/wmts.cgi?${q}`, { signal: AbortSignal.timeout(15000) });
   if (!res.ok) throw new Error(`satélite ${res.status}`);
   const dominio = /<Domain>([^<]*)<\/Domain>/.exec(await res.text())?.[1] ?? '';

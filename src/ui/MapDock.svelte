@@ -54,7 +54,7 @@
         <span class="label">Satélite · {PRODUCTOS[sat].nombre}</span>
         <span class="mono hora">{satT ? cuando(satT, app.now) : 'última imagen'}</span>
         {#if satT}<span class="mono faint">{hace(app.now - satT)}</span>{/if}
-        <button class="texto" onclick={() => ctl()?.region()}>Región</button>
+        <button class="texto" onclick={() => ctl()?.region()}>País</button>
         <button class="texto" onclick={() => ctl()?.ciudad()}>Bogotá</button>
       </div>
       {#if app.satTiempos.length > 1}

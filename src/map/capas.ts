@@ -105,11 +105,11 @@ export class Capas {
 
     // ── Estaciones.
     m.addLayer({
-      id: 'est-pulso', type: 'circle', source: 'est', filter: ['==', ['get', 'llueve'], 1],
+      id: 'est-pulso', type: 'circle', source: 'est', minzoom: 8, filter: ['==', ['get', 'llueve'], 1],
       paint: { 'circle-color': this.azul, 'circle-radius': 10, 'circle-opacity': this.quieto ? 0.3 : 0, 'circle-stroke-width': 0 },
     });
     m.addLayer({
-      id: 'est-punto', type: 'circle', source: 'est', filter: ['!=', ['get', 'modo'], 'flecha'],
+      id: 'est-punto', type: 'circle', source: 'est', minzoom: 8, filter: ['!=', ['get', 'modo'], 'flecha'],
       paint: {
         'circle-color': ['get', 'color'],
         'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, ['case', ['==', ['get', 'modo'], 'vacio'], 2.8, 3.4], 13, ['case', ['==', ['get', 'modo'], 'vacio'], 4, 5.2]],
@@ -117,7 +117,7 @@ export class Capas {
       },
     });
     m.addLayer({
-      id: 'est-flecha', type: 'symbol', source: 'est', filter: ['==', ['get', 'modo'], 'flecha'],
+      id: 'est-flecha', type: 'symbol', source: 'est', minzoom: 8, filter: ['==', ['get', 'modo'], 'flecha'],
       layout: {
         'icon-image': ['get', 'img'], 'icon-rotate': ['get', 'giro'], 'icon-rotation-alignment': 'map',
         'icon-size': ['get', 'talla'], 'icon-allow-overlap': true, 'icon-ignore-placement': true,
@@ -128,7 +128,7 @@ export class Capas {
     // Etiqueta con el valor, flotando sobre el punto. Las que no caben se omiten (queda el punto);
     // entran primero las de mayor valor.
     m.addLayer({
-      id: 'est-valor', type: 'symbol', source: 'est', filter: ['==', ['get', 'modo'], 'valor'],
+      id: 'est-valor', type: 'symbol', source: 'est', minzoom: 8, filter: ['==', ['get', 'modo'], 'valor'],
       layout: {
         'icon-image': ['get', 'img'], 'icon-text-fit': 'both', 'icon-text-fit-padding': [1, 4, 1, 4],
         'text-field': ['get', 'txt'], 'text-font': FUENTE, 'text-size': 11, 'text-anchor': 'bottom', 'text-offset': [0, -0.75],
@@ -138,7 +138,7 @@ export class Capas {
     });
     // ── Ríos.
     m.addLayer({
-      id: 'rios-punto', type: 'symbol', source: 'rios', layout: {
+      id: 'rios-punto', type: 'symbol', source: 'rios', minzoom: 8, layout: {
         visibility: 'none', 'icon-image': ['get', 'img'], 'icon-allow-overlap': true, 'icon-ignore-placement': true,
         'text-field': ['step', ['zoom'], '', 11.3, ['get', 'nombre']], 'text-font': ['Noto Sans Regular'], 'text-size': 11,
         'text-anchor': 'top', 'text-offset': [0, 1], 'text-optional': true, 'text-max-width': 8,
