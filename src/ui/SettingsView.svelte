@@ -2,7 +2,6 @@
   import { app } from '../app/store.svelte';
   import { ctl } from '../app/controller.svelte';
   import { themePref, type ThemePref } from '../app/theme';
-  import { API_BASE } from '../live/api';
   import { cuando } from '../domain/fmt';
   import Cabecera from './Cabecera.svelte';
   import Segmentos from './Segmentos.svelte';
@@ -31,7 +30,6 @@
 <section class="sec">
   <header><h3 class="label">Acerca de</h3></header>
   <p class="dim">Bogotá Weather Live, versión {__APP_VERSION__}. Proyecto no oficial y sin fines comerciales.</p>
-  <p class="faint pie num">{API_BASE}</p>
   <p><a href="#/fuentes">Fuentes y avisos →</a></p>
 </section>
 
@@ -42,6 +40,6 @@
   dt { color: var(--fg-2); }
   dd { margin: 0; font-size: var(--fs-small); }
   .mal { color: var(--warn); }
-  .pie { font-size: var(--fs-label); overflow-wrap: anywhere; }
+  .pie { font-size: var(--fs-label); }
   a { color: var(--fg-0); }
 </style>
